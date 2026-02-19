@@ -25,6 +25,14 @@ export default async (request: Request, url: URL, env: Cloudflare.Env) => {
         "content-type": "application/json",
       },
     });
+  } else if (request.method === "DELETE") {
+    const id = url.searchParams.get("id");
+    if (!id) {
+      return new Response("Missing id parameter", { status: 400 });
+    }
+
+    await deleteTransaction(env, id);
+    return new Response(null, { status: 204 });
   }
 
   throw new Error("Unsupported method");
@@ -86,5 +94,14 @@ async function updateTransaction(env: Cloudflare.Env, data: any) {
     data["name"],
     data["id"]
   ).run();
+  return resp.results;
+}
+
+async function deleteTransaction(env: Cloudflare.Env, id: string) {
+  const stmt = env.DB.prepare(`
+    DELETE FROM transactions
+    WHERE id = ?
+  `);
+  const resp = await stmt.bind(id).run();
   return resp.results;
 }
