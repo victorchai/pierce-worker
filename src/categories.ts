@@ -9,7 +9,7 @@ export default async (request: Request, url: URL, env: Cloudflare.Env) => {
     const resp = await env.DB.prepare("SELECT * FROM categories").all();
     return new Response(JSON.stringify(resp.results.map((v) => ({
       ...v,
-      pf_type: types[v.type_id as number]
+      pf_type: types[v.type as number]
     }))), {
       status: 200,
       headers: {
